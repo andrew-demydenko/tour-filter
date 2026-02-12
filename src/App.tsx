@@ -1,5 +1,5 @@
-import { Header } from "./layout/Header";
-import { Content } from "./layout/Content";
+import { Header } from "./layouts/Header";
+import { Content } from "./layouts/Content";
 
 function App() {
   return (
