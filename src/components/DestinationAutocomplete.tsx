@@ -1,28 +1,28 @@
-import {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  type ReactNode,
-  useMemo,
-} from "react";
+import { useState, useRef, useEffect, type ReactNode, useMemo } from "react";
 import { useCountries } from "../hooks/useCountries";
-import { useGeoSearch } from "../hooks/useGeoSearch";
+import { useDestinationSearch } from "../hooks/useDestinationSearch";
 import { debounce } from "../utils/debounce";
-import type { GeoObject } from "../types";
+import type { Destination } from "../types";
 import { Loader } from "./Loader";
 
-interface GeoObjectAutocompleteProps {
-  selectedGeoObject?: GeoObject | null;
-  onChangeGeoObject: (selectedGeo: GeoObject | null) => void;
+interface DestinationAutocompleteProps {
+  selectedDestination?: Destination | null;
+  onChangeDestination: (selectedDestination: Destination | null) => void;
 }
 
-const getTypeIcon = (geo: GeoObject): string | ReactNode => {
-  if (geo.type === "country") {
-    if ("flag" in geo) {
-      return <img width={20} height={10} src={geo.flag} alt={geo.name} />;
+const getTypeIcon = (destination: Destination): string | ReactNode => {
+  if (destination.type === "country") {
+    if ("flag" in destination) {
+      return (
+        <img
+          width={20}
+          height={10}
+          src={destination.flag}
+          alt={destination.name}
+        />
+      );
     }
-  } else if (geo.type === "city") {
+  } else if (destination.type === "city") {
     return (
       <svg
         className="text-gray-500"
@@ -40,7 +40,7 @@ const getTypeIcon = (geo: GeoObject): string | ReactNode => {
         <path d="M9 10a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v11H9V10z" />
       </svg>
     );
-  } else if (geo.type === "hotel") {
+  } else if (destination.type === "hotel") {
     return (
       <svg
         className="text-gray-500"
@@ -64,27 +64,30 @@ const getTypeIcon = (geo: GeoObject): string | ReactNode => {
   }
 };
 
-export const GeoObjectAutocomplete = ({
-  selectedGeoObject,
-  onChangeGeoObject,
-}: GeoObjectAutocompleteProps) => {
+export const DestinationAutocomplete = ({
+  selectedDestination,
+  onChangeDestination,
+}: DestinationAutocompleteProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState(selectedGeoObject?.name || "");
-  const [searchValue, setSearchValue] = useState(selectedGeoObject?.name || "");
+  const [inputValue, setInputValue] = useState(selectedDestination?.name || "");
+  const [searchValue, setSearchValue] = useState(
+    selectedDestination?.name || ""
+  );
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: countries, isLoading: isSearchingCountries } = useCountries();
-  const { data: searchResults, isLoading: isSearchingGeo } =
-    useGeoSearch(searchValue);
+  const { data: searchResults, isLoading: isSearchingDestination } =
+    useDestinationSearch(searchValue);
 
-  const debouncedSetSearchValue = useCallback(
-    debounce((value: unknown) => {
-      setSearchValue(value as string);
-      if (!value) {
-        onChangeGeoObject(null);
-      }
-    }, 300),
-    []
+  const debouncedSetSearchValue = useMemo(
+    () =>
+      debounce((value: unknown) => {
+        setSearchValue(value as string);
+        if (!value) {
+          onChangeDestination(null);
+        }
+      }, 300),
+    [onChangeDestination]
   );
 
   useEffect(() => {
@@ -114,36 +117,36 @@ export const GeoObjectAutocomplete = ({
     setIsOpen(true);
   };
 
-  const handleOptionClick = (geo: GeoObject) => {
+  const handleOptionClick = (destination: Destination) => {
     setIsOpen(false);
-    setInputValue(geo.name);
-    onChangeGeoObject(geo);
+    setInputValue(destination.name);
+    onChangeDestination(destination);
   };
 
-  const getDisplayName = (geo: GeoObject): string => {
-    if ("flag" in geo) {
-      return `${geo.name}`;
+  const getDisplayName = (destination: Destination): string => {
+    if ("flag" in destination) {
+      return `${destination.name}`;
     }
-    if ("countryName" in geo) {
-      return `${geo.countryName}, ${geo.cityName} - ${geo.name}`;
+    if ("countryName" in destination) {
+      return `${destination.countryName}, ${destination.cityName} - ${destination.name}`;
     }
-    if ("cityName" in geo) {
-      return geo.name;
+    if ("cityName" in destination) {
+      return destination.name;
     }
-    return geo.name;
+    return destination.name;
   };
 
-  const clearSelectedGeo = () => {
+  const clearSelectedDestination = () => {
     setInputValue("");
     setSearchValue("");
-    onChangeGeoObject(null);
+    onChangeDestination(null);
     setIsOpen(false);
   };
 
   const displayOptions = useMemo(() => {
     if (
-      (selectedGeoObject?.type === "country" &&
-        selectedGeoObject?.name === searchValue) ||
+      (selectedDestination?.type === "country" &&
+        selectedDestination?.name === searchValue) ||
       !searchValue
     ) {
       return countries || [];
@@ -152,7 +155,7 @@ export const GeoObjectAutocomplete = ({
     }
 
     return [];
-  }, [searchResults, countries, selectedGeoObject, searchValue]);
+  }, [searchResults, countries, selectedDestination, searchValue]);
 
   return (
     <div ref={containerRef} className="relative w-full">
@@ -168,7 +171,7 @@ export const GeoObjectAutocomplete = ({
         {inputValue && (
           <div
             onClick={() => {
-              clearSelectedGeo();
+              clearSelectedDestination();
             }}
             className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer"
           >
@@ -179,17 +182,17 @@ export const GeoObjectAutocomplete = ({
 
       {isOpen && (
         <div className="w-full mt-2 max-h-[200px] overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-          {isSearchingCountries || isSearchingGeo ? (
+          {isSearchingCountries || isSearchingDestination ? (
             <Loader />
           ) : displayOptions.length ? (
-            displayOptions.map((geo) => (
+            displayOptions.map((destination) => (
               <div
-                key={geo.id}
-                onClick={() => handleOptionClick(geo)}
+                key={destination.id}
+                onClick={() => handleOptionClick(destination)}
                 className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 cursor-pointer"
               >
-                <span>{getTypeIcon(geo)}</span>
-                <span className="truncate">{getDisplayName(geo)}</span>
+                <span>{getTypeIcon(destination)}</span>
+                <span className="truncate">{getDisplayName(destination)}</span>
               </div>
             ))
           ) : (

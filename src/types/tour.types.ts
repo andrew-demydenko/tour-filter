@@ -1,4 +1,4 @@
-import type { Hotel } from "./geoObject.types";
+import type { Hotel } from "./destination.types";
 
 export interface Price {
   id: string;

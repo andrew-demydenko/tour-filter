@@ -1,17 +1,17 @@
-export type GeoType = "country" | "city" | "hotel";
+export type DestinationType = "country" | "city" | "hotel";
 
 export interface Country {
   id: string;
   name: string;
   flag: string;
-  type?: GeoType;
+  type?: DestinationType;
 }
 
 export interface City {
   id: string;
   name: string;
   countryId: string;
-  type?: GeoType;
+  type?: DestinationType;
 }
 
 export interface Hotel {
@@ -22,7 +22,7 @@ export interface Hotel {
   countryId: string;
   countryName: string;
   img?: string;
-  type?: GeoType;
+  type?: DestinationType;
 }
 
-export type GeoObject = Country | City | Hotel;
+export type Destination = Country | City | Hotel;

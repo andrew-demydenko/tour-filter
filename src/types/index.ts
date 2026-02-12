@@ -1,2 +1,2 @@
-export * from "./geoObject.types";
+export * from "./destination.types";
 export * from "./tour.types";
