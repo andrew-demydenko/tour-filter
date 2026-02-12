@@ -13,8 +13,8 @@ import type { GeoObject } from "../types";
 import { Loader } from "./Loader";
 
 interface GeoObjectAutocompleteProps {
-  value: string;
-  onChangeDestination: (selectedGeo: GeoObject) => void;
+  selectedGeoObject?: GeoObject | null;
+  onChangeGeoObject: (selectedGeo: GeoObject | null) => void;
 }
 
 const getTypeIcon = (geo: GeoObject): string | ReactNode => {
@@ -23,20 +23,54 @@ const getTypeIcon = (geo: GeoObject): string | ReactNode => {
       return <img width={20} height={10} src={geo.flag} alt={geo.name} />;
     }
   } else if (geo.type === "city") {
-    return "🏙️";
+    return (
+      <svg
+        className="text-gray-500"
+        width={20}
+        height={20}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 21h18" />
+        <path d="M5 21V7l8-4 8 4v14" />
+        <path d="M9 10a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v11H9V10z" />
+      </svg>
+    );
   } else if (geo.type === "hotel") {
-    return "🏨";
+    return (
+      <svg
+        className="text-gray-500"
+        width={20}
+        height={20}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 21h18" />
+        <path d="M5 21V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v12" />
+        <path d="M13 21V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v16" />
+        <path d="M6 10v0" />
+        <path d="M14 7v0" />
+        <path d="M14 12v0" />
+      </svg>
+    );
   }
 };
 
 export const GeoObjectAutocomplete = ({
-  value,
-  onChangeDestination,
+  selectedGeoObject,
+  onChangeGeoObject,
 }: GeoObjectAutocompleteProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState(value);
-  const [searchValue, setSearchValue] = useState(value);
-  const [selectedGeo, setSelectedGeo] = useState<GeoObject | undefined>();
+  const [inputValue, setInputValue] = useState(selectedGeoObject?.name || "");
+  const [searchValue, setSearchValue] = useState(selectedGeoObject?.name || "");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: countries, isLoading: isSearchingCountries } = useCountries();
@@ -46,6 +80,9 @@ export const GeoObjectAutocomplete = ({
   const debouncedSetSearchValue = useCallback(
     debounce((value: unknown) => {
       setSearchValue(value as string);
+      if (!value) {
+        onChangeGeoObject(null);
+      }
     }, 300),
     []
   );
@@ -78,10 +115,9 @@ export const GeoObjectAutocomplete = ({
   };
 
   const handleOptionClick = (geo: GeoObject) => {
-    setSelectedGeo(geo);
     setIsOpen(false);
     setInputValue(geo.name);
-    onChangeDestination(geo);
+    onChangeGeoObject(geo);
   };
 
   const getDisplayName = (geo: GeoObject): string => {
@@ -97,9 +133,17 @@ export const GeoObjectAutocomplete = ({
     return geo.name;
   };
 
+  const clearSelectedGeo = () => {
+    setInputValue("");
+    setSearchValue("");
+    onChangeGeoObject(null);
+    setIsOpen(false);
+  };
+
   const displayOptions = useMemo(() => {
     if (
-      (selectedGeo?.type === "country" && selectedGeo?.name === searchValue) ||
+      (selectedGeoObject?.type === "country" &&
+        selectedGeoObject?.name === searchValue) ||
       !searchValue
     ) {
       return countries || [];
@@ -108,7 +152,7 @@ export const GeoObjectAutocomplete = ({
     }
 
     return [];
-  }, [searchResults, countries, selectedGeo, searchValue]);
+  }, [searchResults, countries, selectedGeoObject, searchValue]);
 
   return (
     <div ref={containerRef} className="relative w-full">
@@ -123,7 +167,9 @@ export const GeoObjectAutocomplete = ({
         />
         {inputValue && (
           <div
-            onClick={() => setInputValue("")}
+            onClick={() => {
+              clearSelectedGeo();
+            }}
             className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer"
           >
             ⨉
