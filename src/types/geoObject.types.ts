@@ -8,7 +8,7 @@ export interface Country {
 }
 
 export interface City {
-  id: number;
+  id: string;
   name: string;
   countryId: string;
   type?: GeoType;

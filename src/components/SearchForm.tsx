@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { GeoObjectAutocomplete } from "./GeoObjectAutocomplete";
 import type { GeoObject } from "../types";
+import { useStopSearch } from "../hooks/useStopSearch";
+import { getSearchToken } from "../stores/searchTokenStore";
 
 export const SearchForm = ({
   onChangeCountryId,
@@ -10,6 +12,36 @@ export const SearchForm = ({
   loading: boolean;
 }) => {
   const [geoObject, setGeoObject] = useState<GeoObject | null>(null);
+  const { stopSearch } = useStopSearch({
+    // In documentation we need to disable button "Знайти" when loading
+    // but here we need to run new search without clicking "Знайти" button, Logic is little strange
+    // Не запускайте пошук доки попередній пошук не був завершений (наприклад, disable кнопки «Знайти»).
+    // Після завершення stopSearchPrices: запустити новий пошук за оновленими параметрами
+    onSuccess: () => {
+      if (!geoObject) {
+        return;
+      }
+      onChangeCountryId(getCountryId(geoObject));
+    },
+  });
+
+  const getCountryId = useCallback(
+    (geo: GeoObject) => {
+      let countryId: string | null = null;
+
+      if (!geo) {
+        return countryId;
+      }
+      if ("flag" in geo) {
+        countryId = geo.id;
+      } else if ("countryId" in geo) {
+        countryId = geo.countryId;
+      }
+
+      return countryId;
+    },
+    [geoObject]
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,28 +50,28 @@ export const SearchForm = ({
       return;
     }
 
-    let countryId: string | undefined;
+    const countryId = getCountryId(geoObject);
 
-    if ("flag" in geoObject) {
-      countryId = geoObject.id;
-    } else if ("countryId" in geoObject) {
-      countryId = geoObject.countryId;
-    }
-    onChangeCountryId(countryId || null);
+    onChangeCountryId(countryId);
   };
 
   const handleGeoObjectChange = async (geo: GeoObject | null) => {
     setGeoObject(geo);
 
-    if (!geo) {
+    if (!geo || geoObject?.id !== geo.id) {
       onChangeCountryId(null);
+    }
+
+    const token = getSearchToken();
+    if (token) {
+      stopSearch(token);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto">
       <div className="relative h-[160px] mb-6">
-        <div className="absolute w-full top-0 left-0 flex flex-col gap-4 p-6 bg-white border border-gray-200 rounded-lg shadow-md">
+        <div className="absolute z-10 w-full top-0 left-0 flex flex-col gap-4 p-6 bg-white border border-gray-200 rounded-lg shadow-md">
           <GeoObjectAutocomplete
             selectedGeoObject={geoObject}
             onChangeGeoObject={handleGeoObjectChange}

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { startSearchPrices, getSearchPrices } from "../services/api";
+import { setSearchToken } from "../stores/searchTokenStore";
 import type { Price } from "../types";
 
 const MAX_RETRIES = 2;
@@ -10,6 +11,7 @@ const fetchTours = async (countryId: string): Promise<Price[]> => {
 
   const startResponse = await startSearchPrices(countryId);
   const startData = await startResponse.json();
+  setSearchToken(startData.token);
 
   const waitUntil = new Date(startData.waitUntil).getTime();
   const now = Date.now();
@@ -47,6 +49,7 @@ const fetchTours = async (countryId: string): Promise<Price[]> => {
       }
     }
   }
+  setSearchToken(null);
 
   if (!pricesData || !pricesData.prices) {
     return [];
