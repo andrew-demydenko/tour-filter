@@ -1,21 +1,17 @@
+import type { Hotel } from "./geoObject.types";
+
 export interface Price {
   id: string;
   amount: number;
   currency: string;
   startDate: string;
   endDate: string;
-  hotelID: number;
+  hotelID: string;
 }
 
 export interface Tour {
   price: Price;
-  hotel: {
-    id: number;
-    name: string;
-    cityName: string;
-    countryName: string;
-    img?: string;
-  };
+  hotel: Hotel;
 }
 
 export interface SearchStartResponse {

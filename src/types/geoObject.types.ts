@@ -15,7 +15,7 @@ export interface City {
 }
 
 export interface Hotel {
-  id: number;
+  id: string;
   name: string;
   cityId: number;
   cityName: string;
