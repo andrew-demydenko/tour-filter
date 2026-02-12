@@ -1,9 +1,9 @@
-import { Header } from "./layout/header";
-import { Content } from "./layout/content";
+import { Header } from "./layout/Header";
+import { Content } from "./layout/Content";
 
 function App() {
   return (
-    <div className="container mx-auto max-w-[1200px] flex flex-col h-full">
+    <div className="flex flex-col h-full">
       <Header />
       <Content />
     </div>
