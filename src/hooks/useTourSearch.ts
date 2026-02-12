@@ -20,25 +20,24 @@ const fetchTours = async (countryId: string): Promise<Price[]> => {
   let pricesData: { prices: Record<string, Price> } = {
     prices: {},
   };
-  let retryAttempt = 1;
+  let retryAttempt = 0;
 
-  while (retryAttempt <= MAX_RETRIES) {
-    try {
-      const pricesResponse = await getSearchPrices(startData.token);
-      pricesData = await pricesResponse.json();
-      break;
-    } catch (error) {
-      const err = error as unknown as Response;
-      const errorData = await err.json();
+  try {
+    const pricesResponse = await getSearchPrices(startData.token);
+    pricesData = await pricesResponse.json();
+  } catch (error) {
+    const err = error as unknown as Response;
+    const errorData = await err.json();
+    while (retryAttempt < MAX_RETRIES) {
+      const newWaitUntil = new Date(errorData.waitUntil!).getTime();
+      // api return 0 if waitUntil is in the past
+      const newDelayMs = Math.max(0, newWaitUntil - Date.now()) || 2000;
 
+      await new Promise((resolve) => setTimeout(resolve, newDelayMs));
       if (errorData.code === 425) {
-        const newWaitUntil = new Date(errorData.waitUntil!).getTime();
-        const newDelayMs = Math.max(0, newWaitUntil - Date.now());
-
         if (Date.now() - startTime > SEARCH_TIMEOUT_MS) {
           throw new Error("Таймаут пошуку турів. Спробуйте пізніше.");
         }
-        await new Promise((resolve) => setTimeout(resolve, newDelayMs));
 
         continue;
       } else if (errorData.code === 404 && retryAttempt < MAX_RETRIES) {
@@ -47,8 +46,6 @@ const fetchTours = async (countryId: string): Promise<Price[]> => {
         throw errorData;
       }
     }
-
-    retryAttempt = 3;
   }
 
   if (!pricesData || !pricesData.prices) {
