@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { startSearchPrices, getSearchPrices } from "../services/api";
-// import type { Tour } from "../types";
+import type { Price } from "../types";
 
 const MAX_RETRIES = 2;
 const SEARCH_TIMEOUT_MS = 60000;
 
-const fetchTours = async (countryId: string): Promise<any[]> => {
+const fetchTours = async (countryId: string): Promise<Price[]> => {
   const startTime = Date.now();
 
   const startResponse = await startSearchPrices(countryId);
@@ -17,7 +17,9 @@ const fetchTours = async (countryId: string): Promise<any[]> => {
 
   await new Promise((resolve) => setTimeout(resolve, delayMs));
 
-  let pricesData;
+  let pricesData: { prices: Record<string, Price> } = {
+    prices: {},
+  };
   let retryAttempt = 1;
 
   while (retryAttempt <= MAX_RETRIES) {
@@ -53,7 +55,13 @@ const fetchTours = async (countryId: string): Promise<any[]> => {
     return [];
   }
 
-  const prices = Object.values(pricesData.prices);
+  const prices = Object.values(pricesData.prices).map((price: Price) => {
+    return {
+      ...price,
+      id: String(price.id),
+      hotelID: String(price.hotelID),
+    };
+  }) as Price[];
 
   if (prices.length === 0) {
     return [];
