@@ -10,6 +10,7 @@ import { useCountries } from "../hooks/useCountries";
 import { useGeoSearch } from "../hooks/useGeoSearch";
 import { debounce } from "../utils/debounce";
 import type { GeoObject } from "../types";
+import { Loader } from "./Loader";
 
 interface GeoObjectAutocompleteProps {
   value: string;
@@ -38,8 +39,9 @@ export const GeoObjectAutocomplete = ({
   const [selectedGeo, setSelectedGeo] = useState<GeoObject | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: countries } = useCountries();
-  const { data: searchResults } = useGeoSearch(searchValue);
+  const { data: countries, isLoading: isSearchingCountries } = useCountries();
+  const { data: searchResults, isLoading: isSearchingGeo } =
+    useGeoSearch(searchValue);
 
   const debouncedSetSearchValue = useCallback(
     debounce((value: unknown) => {
@@ -96,13 +98,17 @@ export const GeoObjectAutocomplete = ({
   };
 
   const displayOptions = useMemo(() => {
-    if (searchResults) return searchResults;
-    if (!searchResults || (countries && selectedGeo?.type === "country")) {
+    if (
+      (selectedGeo?.type === "country" && selectedGeo?.name === searchValue) ||
+      !searchValue
+    ) {
       return countries || [];
+    } else if (searchValue && searchResults) {
+      return searchResults || [];
     }
 
     return [];
-  }, [searchResults, countries, selectedGeo]);
+  }, [searchResults, countries, selectedGeo, searchValue]);
 
   return (
     <div ref={containerRef} className="relative w-full">
@@ -115,17 +121,21 @@ export const GeoObjectAutocomplete = ({
           placeholder="Направлення"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
-        <div
-          onClick={() => setInputValue("")}
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer"
-        >
-          ⨉
-        </div>
+        {inputValue && (
+          <div
+            onClick={() => setInputValue("")}
+            className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer"
+          >
+            ⨉
+          </div>
+        )}
       </div>
 
       {isOpen && (
         <div className="w-full mt-2 max-h-[200px] overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-          {displayOptions.length ? (
+          {isSearchingCountries || isSearchingGeo ? (
+            <Loader />
+          ) : displayOptions.length ? (
             displayOptions.map((geo) => (
               <div
                 key={geo.id}
