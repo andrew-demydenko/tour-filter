@@ -9,6 +9,7 @@
 - Vite
 - Tailwind CSS
 - TanStack Query
+- Zustand
 
 ## Install
 
@@ -27,3 +28,4 @@ yarn dev
 ```bash
 yarn build
 ```
+
