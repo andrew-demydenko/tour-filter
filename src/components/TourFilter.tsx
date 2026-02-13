@@ -1,25 +1,31 @@
 import { useState } from "react";
 import { SearchForm } from "../components/SearchForm";
-import { useTourSearch } from "../hooks/useTourSearch";
+import { useTourPricesSearch } from "../hooks/useTourPricesSearch";
 import { Loader } from "../components/Loader";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { TourList } from "../components/TourList";
 
 export const TourFilter = () => {
   const [countryId, setCountryId] = useState<string | null>(null);
-  const { tours: prices, isLoading, isError, error } = useTourSearch(countryId);
+  const { prices, isFetching, isError, error, refetch } =
+    useTourPricesSearch(countryId);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <SearchForm loading={isLoading} onChangeCountryId={setCountryId} />
+      <SearchForm
+        currentCountryId={countryId}
+        loading={isFetching}
+        onChangeCountryId={setCountryId}
+        refetch={refetch}
+      />
 
-      {isLoading && <Loader />}
+      {isFetching && <Loader />}
 
       {isError && (
         <ErrorMessage message={error?.message || "Сталася помилка"} />
       )}
 
-      {!isLoading && !isError && countryId && (
+      {!isFetching && !isError && countryId && (
         <div className="mt-6">
           <TourList prices={prices} countryId={countryId} />
         </div>

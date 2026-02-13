@@ -2,16 +2,21 @@ import { useState } from "react";
 import { DestinationAutocomplete } from "./DestinationAutocomplete";
 import type { Destination } from "../types";
 import { useStopSearch } from "../hooks/useStopSearch";
-import { getSearchToken } from "../stores/searchTokenStore";
+import { useTourSearchStore } from "../stores/useTourSearchStore";
 
 export const SearchForm = ({
   onChangeCountryId,
   loading,
+  refetch,
+  currentCountryId,
 }: {
   onChangeCountryId: (countryId: string | null) => void;
   loading: boolean;
+  refetch: () => void;
+  currentCountryId: string | null;
 }) => {
   const [destination, setDestination] = useState<Destination | null>(null);
+
   const { stopSearch } = useStopSearch({
     // In documentation we need to disable button "Знайти" when loading
     // but here we need to run new search without clicking "Знайти" button, Logic is little strange
@@ -49,7 +54,11 @@ export const SearchForm = ({
 
     const countryId = getCountryId(destination);
 
-    onChangeCountryId(countryId);
+    if (countryId !== currentCountryId) {
+      onChangeCountryId(countryId);
+    } else {
+      refetch();
+    }
   };
 
   const handleDestinationChange = async (destination: Destination | null) => {
@@ -59,9 +68,9 @@ export const SearchForm = ({
       onChangeCountryId(null);
     }
 
-    const token = getSearchToken();
-    if (token) {
-      stopSearch(token);
+    const searchToken = useTourSearchStore.getState().searchToken;
+    if (searchToken) {
+      stopSearch(searchToken);
     }
   };
 

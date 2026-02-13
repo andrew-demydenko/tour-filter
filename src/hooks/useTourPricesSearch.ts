@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { startSearchPrices, getSearchPrices } from "../services/api";
-import { setSearchToken } from "../stores/searchTokenStore";
 import type { Price } from "../types";
+import { useTourSearchStore } from "../stores/useTourSearchStore";
 
 const MAX_RETRIES = 2;
 const SEARCH_TIMEOUT_MS = 60000;
 
-const fetchTours = async (countryId: string): Promise<Price[]> => {
+const fetchTourPrices = async (
+  countryId: string,
+  setSearchToken: (token: string | null) => void
+): Promise<Price[]> => {
   const startTime = Date.now();
 
   const startResponse = await startSearchPrices(countryId);
@@ -70,18 +73,22 @@ const fetchTours = async (countryId: string): Promise<Price[]> => {
   return prices;
 };
 
-export const useTourSearch = (countryId: string | null) => {
+export const useTourPricesSearch = (countryId: string | null) => {
+  const setSearchToken = useTourSearchStore((state) => state.setSearchToken);
+  const setTourPrices = useTourSearchStore((state) => state.setTourPrices);
   const query = useQuery({
-    queryKey: ["tours", countryId],
-    queryFn: () => fetchTours(countryId!),
+    queryKey: ["tourPrices", countryId],
+    queryFn: () => fetchTourPrices(countryId!, setSearchToken),
     enabled: !!countryId,
     retry: false,
+    // I think prices should be actual after search
     staleTime: 0,
-    gcTime: 0,
   });
 
+  const prices = query.data || [];
+  setTourPrices(prices);
   return {
     ...query,
-    tours: query.data || [],
+    prices,
   };
 };
