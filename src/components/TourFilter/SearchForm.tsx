@@ -28,6 +28,7 @@ export const SearchForm = ({
       if (!destination) {
         return;
       }
+      //toDo can be moved to stopSearch
       cancelQuery();
       onChangeCountryId(getCountryId(destination));
     },
