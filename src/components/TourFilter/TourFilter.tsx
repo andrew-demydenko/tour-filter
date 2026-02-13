@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { SearchForm } from "../components/SearchForm";
-import { useTourPricesSearch } from "../hooks/useTourPricesSearch";
-import { Loader } from "../components/Loader";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { TourList } from "../components/TourList";
+import { SearchForm } from "./SearchForm";
+import { useTourPricesSearch } from "@/hooks";
+import { Loader } from "../shared/Loader";
+import { ErrorMessage } from "../shared/ErrorMessage";
+import { TourList } from "./TourList";
 
 export const TourFilter = () => {
   const [countryId, setCountryId] = useState<string | null>(null);

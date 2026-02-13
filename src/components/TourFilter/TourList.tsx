@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { TourItem } from "./TourItem";
-import { useHotels } from "../hooks/useHotels";
-import { Loader } from "./Loader";
-import { ErrorMessage } from "./ErrorMessage";
-import type { Price, Tour } from "../types";
-import { EmptyList } from "./EmptyList";
+import { useHotelDetails } from "@/hooks";
+import { Loader } from "../shared/Loader";
+import { ErrorMessage } from "../shared/ErrorMessage";
+import type { Price, Tour } from "@/types";
+import { EmptyList } from "../shared/EmptyList";
 
 interface TourListProps {
   prices: Price[];
@@ -17,7 +17,7 @@ export const TourList = ({ prices, countryId }: TourListProps) => {
     isError: isHotelsError,
     error: hotelsError,
     getHotelById,
-  } = useHotels(countryId);
+  } = useHotelDetails(countryId);
 
   const tours: Tour[] = useMemo(() => {
     return prices

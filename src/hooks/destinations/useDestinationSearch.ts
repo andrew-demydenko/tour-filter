@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { searchGeo, type Destination } from "../services/api";
+import { searchGeo, type Destination } from "../../services/api";
 
 export const useDestinationSearch = (searchString: string) => {
   return useQuery({

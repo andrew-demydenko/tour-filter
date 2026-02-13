@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Price } from "../types";
+import type { Price } from "@/types";
 
 interface TourSearchStore {
   searchToken: string | null;

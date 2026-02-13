@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, type ReactNode, useMemo } from "react";
-import { useCountries } from "../hooks/useCountries";
-import { useDestinationSearch } from "../hooks/useDestinationSearch";
-import { debounce } from "../utils/debounce";
-import type { Destination } from "../types";
-import { Loader } from "./Loader";
+import { useDestinationSearch, useCountries } from "@/hooks";
+import { debounce } from "@/utils/debounce";
+import type { Destination } from "@/types";
+import { Loader } from "../shared/Loader";
 
 interface DestinationAutocompleteProps {
   selectedDestination?: Destination | null;

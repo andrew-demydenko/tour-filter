@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { DestinationAutocomplete } from "./DestinationAutocomplete";
-import type { Destination } from "../types";
-import { useStopSearch } from "../hooks/useStopSearch";
-import { useTourSearchStore } from "../stores/useTourSearchStore";
+import type { Destination } from "@/types";
+import { useStopSearch } from "@/hooks";
+import { useTourSearchStore } from "@/stores/useTourSearchStore";
 
 export const SearchForm = ({
   onChangeCountryId,

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { getHotels } from "../services/api";
-import type { Hotel } from "../types";
+import { getHotels } from "@/services/api";
+import type { Hotel } from "@/types";
 
-const fetchHotels = async (countryId: string): Promise<Hotel[]> => {
+const fetchHotelDetails = async (countryId: string): Promise<Hotel[]> => {
   const response = await getHotels(countryId);
   const data: {
     [key: string]: Hotel;
@@ -15,10 +15,10 @@ const fetchHotels = async (countryId: string): Promise<Hotel[]> => {
   });
 };
 
-export const useHotels = (countryId: string | null) => {
+export const useHotelDetails = (countryId: string | null) => {
   const query = useQuery({
-    queryKey: ["hotels", countryId],
-    queryFn: () => fetchHotels(countryId!),
+    queryKey: ["hotelDetails", countryId],
+    queryFn: () => fetchHotelDetails(countryId!),
     enabled: !!countryId,
     staleTime: 1000 * 60 * 5,
   });

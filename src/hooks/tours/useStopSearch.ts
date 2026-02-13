@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { stopSearchPrices } from "../services/api";
-import { useTourSearchStore } from "../stores/useTourSearchStore";
+import { stopSearchPrices } from "@/services/api";
+import { useTourSearchStore } from "@/stores/useTourSearchStore";
 
 export const useStopSearch = ({ onSuccess }: { onSuccess?: () => void }) => {
   const setSearchToken = useTourSearchStore((state) => state.setSearchToken);

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { startSearchPrices, getSearchPrices } from "../services/api";
-import type { Price } from "../types";
-import { useTourSearchStore } from "../stores/useTourSearchStore";
+import { startSearchPrices, getSearchPrices } from "@/services/api";
+import type { Price } from "@/types";
+import { useTourSearchStore } from "@/stores/useTourSearchStore";
 
 const MAX_RETRIES = 2;
 const SEARCH_TIMEOUT_MS = 60000;

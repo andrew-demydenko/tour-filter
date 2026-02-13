@@ -1,4 +1,4 @@
-import { TourFilter } from "../components/TourFilter";
+import { TourFilter } from "@/components/TourFilter";
 
 export const Content = () => {
   return (
