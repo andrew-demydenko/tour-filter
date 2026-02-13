@@ -14,7 +14,7 @@
 ## Install
 
 ```bash
-yarnl
+yarn
 ```
 
 ## Run
@@ -28,4 +28,5 @@ yarn dev
 ```bash
 yarn build
 ```
+
 
