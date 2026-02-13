@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { startSearchPrices, getSearchPrices } from "@/services/api";
 import type { Price } from "@/types";
 import { useTourSearchStore } from "@/stores/useTourSearchStore";
+import { useCallback } from "react";
 
 const MAX_RETRIES = 2;
 const SEARCH_TIMEOUT_MS = 60000;
@@ -33,6 +34,7 @@ const fetchTourPrices = async (
   } catch (error) {
     const err = error as unknown as Response;
     const errorData = await err.json();
+
     while (retryAttempt < MAX_RETRIES) {
       const newWaitUntil = new Date(errorData.waitUntil!).getTime();
       // api return 0 if waitUntil is in the past
@@ -41,17 +43,20 @@ const fetchTourPrices = async (
       await new Promise((resolve) => setTimeout(resolve, newDelayMs));
       if (errorData.code === 425) {
         if (Date.now() - startTime > SEARCH_TIMEOUT_MS) {
-          throw new Error("Таймаут пошуку турів. Спробуйте пізніше.");
+          throw { message: "Таймаут пошуку турів. Спробуйте пізніше." };
         }
 
         continue;
       } else if (errorData.code === 404 && retryAttempt < MAX_RETRIES) {
         retryAttempt++;
-      } else {
-        throw errorData;
       }
     }
+
+    if (retryAttempt >= MAX_RETRIES) {
+      throw errorData;
+    }
   }
+
   setSearchToken(null);
 
   if (!pricesData || !pricesData.prices) {
@@ -74,8 +79,16 @@ const fetchTourPrices = async (
 };
 
 export const useTourPricesSearch = (countryId: string | null) => {
+  const queryClient = useQueryClient();
   const setSearchToken = useTourSearchStore((state) => state.setSearchToken);
   const setTourPrices = useTourSearchStore((state) => state.setTourPrices);
+
+  const cancelQuery = useCallback(() => {
+    queryClient.cancelQueries({
+      queryKey: ["tourPrices", countryId],
+    });
+  }, [countryId, queryClient]);
+
   const query = useQuery({
     queryKey: ["tourPrices", countryId],
     queryFn: () => fetchTourPrices(countryId!, setSearchToken),
@@ -89,6 +102,7 @@ export const useTourPricesSearch = (countryId: string | null) => {
   setTourPrices(prices);
   return {
     ...query,
+    cancelQuery,
     prices,
   };
 };

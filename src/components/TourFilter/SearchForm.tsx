@@ -9,11 +9,13 @@ export const SearchForm = ({
   loading,
   refetch,
   currentCountryId,
+  cancelQuery,
 }: {
   onChangeCountryId: (countryId: string | null) => void;
   loading: boolean;
   refetch: () => void;
   currentCountryId: string | null;
+  cancelQuery: () => void;
 }) => {
   const [destination, setDestination] = useState<Destination | null>(null);
 
@@ -26,6 +28,7 @@ export const SearchForm = ({
       if (!destination) {
         return;
       }
+      cancelQuery();
       onChangeCountryId(getCountryId(destination));
     },
   });

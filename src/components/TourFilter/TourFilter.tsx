@@ -7,7 +7,7 @@ import { TourList } from "./TourList";
 
 export const TourFilter = () => {
   const [countryId, setCountryId] = useState<string | null>(null);
-  const { prices, isFetching, isError, error, refetch } =
+  const { prices, isFetching, isError, error, refetch, cancelQuery } =
     useTourPricesSearch(countryId);
 
   return (
@@ -17,6 +17,7 @@ export const TourFilter = () => {
         loading={isFetching}
         onChangeCountryId={setCountryId}
         refetch={refetch}
+        cancelQuery={cancelQuery}
       />
 
       {isFetching && <Loader />}
