@@ -2,7 +2,7 @@
 
 [Link](https://andrew-demydenko.github.io/tour-filter/)
 
-## Технології
+## Technologies
 
 - React 19
 - TypeScript
